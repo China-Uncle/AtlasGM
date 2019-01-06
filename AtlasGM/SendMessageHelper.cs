@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -11,7 +12,7 @@ namespace AtlasGM
 {
     public class WindowsMessage
     {
-        public  int WM_NULL = 0x0000; // 
+        public const int WM_NULL = 0x0000; // 
         public const int WM_CREATE = 0x0001; //应用程序创建一个窗口 
         public const int WM_DESTROY = 0x0002; //一个窗口被销毁 
         public const int WM_MOVE = 0x0003; //移动一个窗口 
@@ -287,22 +288,76 @@ namespace AtlasGM
         //public const int LBN_SELCHANGE //选择了另一项 
         //public const int LBN_SETFOCUS //列表框获得输入焦点
     }
- 
-  
-   public static class SendMessageHelper
+
+
+    public static class SendMessageHelper
     {
         [DllImport("user32.dll")]
         public static extern void SwitchToThisWindow(IntPtr hWnd, bool fAltTab);
-        [DllImport("user32.dll")] private static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, uint lParam);
+        [DllImport("user32.dll")] private static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
         [DllImport("user32.dll")] private static extern int PostMessage(IntPtr hWnd, int Msg, int wParam, uint lParam);
         [DllImport("user32.dll")] private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndlnsertAfter, int X, int Y, int cx, int cy, uint Flags);
         private const int WM_CHAR = 0X102;
         [DllImport("user32.dll")] private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-        private const int WM_SYSKEYUP = 0X105;
-        private const int WM_SYSKEYDOWN = 0X104;
-        public static void Send(string message,int number=1)
-        {
  
+ 
+
+      
+
+    
+
+
+
+ 
+        /// <summary>
+        /// 获取指定窗口的设备场景
+        /// </summary>
+        /// <param name="hwnd">将获取其设备场景的窗口的句柄。若为0，则要获取整个屏幕的DC</param>
+        /// <returns>指定窗口的设备场景句柄，出错则为0</returns>
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetDC(IntPtr hwnd);
+
+        /// <summary>
+        /// 释放由调用GetDC函数获取的指定设备场景
+        /// </summary>
+        /// <param name="hwnd">要释放的设备场景相关的窗口句柄</param>
+        /// <param name="hdc">要释放的设备场景句柄</param>
+        /// <returns>执行成功为1，否则为0</returns>
+        [DllImport("user32.dll")]
+        public static extern Int32 ReleaseDC(IntPtr hwnd, IntPtr hdc);
+
+        /// <summary>
+        /// 在指定的设备场景中取得一个像素的RGB值
+        /// </summary>
+        /// <param name="hdc">一个设备场景的句柄</param>
+        /// <param name="nXPos">逻辑坐标中要检查的横坐标</param>
+        /// <param name="nYPos">逻辑坐标中要检查的纵坐标</param>
+        /// <returns>指定点的颜色</returns>
+        [DllImport("gdi32.dll")]
+        public static extern uint GetPixel(IntPtr hdc, int nXPos, int nYPos);
+
+        public static Color GetColor(int x, int y)
+        {
+            IntPtr hdc = GetDC(IntPtr.Zero); uint pixel = GetPixel(hdc, x, y);
+            ReleaseDC(IntPtr.Zero, hdc);
+            Color color = Color.FromArgb((int)(pixel & 0x000000FF), (int)(pixel & 0x0000FF00) >> 8, (int)(pixel & 0x00FF0000) >> 16);
+            return color;
+        }
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool GetWindowRect(IntPtr hWnd, ref RECT lpRect);
+        [StructLayout(LayoutKind.Sequential)]
+        public struct RECT
+        {
+            public int Left;                             //最左坐标
+            public int Top;                             //最上坐标
+            public int Right;                           //最右坐标
+            public int Bottom;                        //最下坐标
+        }
+       static int Retry = 0;
+        public static void Send(string message, int number = 1)
+        {
+
             try
             {
                 ShowWindow(Program.handle, 9); //将窗口还原
@@ -314,7 +369,7 @@ namespace AtlasGM
                 System.Diagnostics.Process[] processes = System.Diagnostics.Process.GetProcessesByName(p);
                 // if there is more than one process
                 if (processes.Length > 0)
-                {
+                {                    
                     Program.handle = processes[0].MainWindowHandle;
                     //SwitchToThisWindow(handle, true);    // 激活，显示在最
                     // ShowWindow(Program.handle, 9);
@@ -327,29 +382,81 @@ namespace AtlasGM
                 }
             }
 
-            //SwitchToThisWindow(Program.handle, true);
-            // SendKeys.Send("123");
-            //PostMessage1(Program.handle, Convert.("~"), 0, 0);
-            //SetWindowPos(Program.handle, (IntPtr)(0), 0, 0, 0, 0, 0x0040 | 0x0001);
-            SendMessage(Program.handle, 0x0100, (int)Keys.Oemtilde, 0);
             Clipboard.SetDataObject(message);
-            var b =new WindowsMessage().GetType();
-            foreach (System.Reflection.PropertyInfo info in new WindowsMessage().GetType().GetProperties())
-            {
-                var a = info;
-            }
+            RECT rect = new RECT();
+            GetWindowRect(Program.handle, ref rect); 
+            int x = rect.Left+30;
+            int y = rect.Bottom-20;
+           
+            
+            
             SwitchToThisWindow(Program.handle, true);
+           
+
             for (int i = 0; i < number; i++)
             {
-                SwitchToThisWindow(Program.handle, true);
-                SendKeys.SendWait("{~}"); Thread.Sleep(100);
-                // SendKeys.SendWait("{DOWN}");
-                SendKeys.SendWait("^v"); Thread.Sleep(100);
-                SendKeys.SendWait("{ENTER}");
-                Thread.Sleep(100);
+                Retry = 0;
+                if (!DetectionConsole( x, y))
+                {
+                    return;
+                }
+                SendKeys.SendWait("^v"); Thread.Sleep(10);
+                // SendMessage(Program.handle, WindowsMessage.WM_SYSKEYDOWN, (int)Keys.Enter, 0);
+                SendMessage(Program.handle, WindowsMessage.WM_SYSKEYUP, (int)Keys.Enter, 0);
+                //SendKeys.SendWait("{ENTER}");
+                Thread.Sleep(20);
             }
 
         }
+        
+        static bool DetectionConsole(int x,int y)
+        {
+            if (Retry>=5)
+            {
+                MessageBox.Show("控制台被遮挡");
+                return false;
+            } 
+            Thread.Sleep(100);
+            Color color = GetColor(x, y);
+            if (color.Name != "ff000000")
+            {
+                if (Retry==0)
+                {
+                    CallConsole();
+                    return DetectionConsole( x, y);
+                }
+                else
+                {
+                    ESC();
+                    CallConsole();
+                }
+                return DetectionConsole( x, y);
+            }
+            if (Retry == 0)
+            {
+                ESC();
+                CallConsole();
+                return DetectionConsole( x, y);
+
+            }
+            return true;
+        }
+        /// <summary>
+        /// 呼出控制台
+        /// </summary>
+        static void CallConsole()
+        {
+            SendMessage(Program.handle, WindowsMessage.WM_SYSKEYDOWN, (int)Keys.Oemtilde, 0);
+            SendMessage(Program.handle, WindowsMessage.WM_SYSKEYUP, (int)Keys.Oemtilde, 0);
+            Retry++;
+        }
+        static void ESC()
+        {
+            SendMessage(Program.handle, WindowsMessage.WM_SYSKEYDOWN, (int)Keys.Escape, 0);
+            SendMessage(Program.handle, WindowsMessage.WM_SYSKEYUP, (int)Keys.Escape, 0);
+            Thread.Sleep(300);
+        }
+
 
 
 
