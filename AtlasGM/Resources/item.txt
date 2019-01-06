@@ -1,0 +1,12 @@
+[
+		{
+			"name": "½ð±Ò",
+			"img": "",
+			"code": "Blueprint'/Game/Atlas/AtlasCoreBP/Items/PrimalItemResource_GoldCoin.PrimalItemResource_GoldCoin'"
+		},
+		{
+			"name": "Ãû³Æ2",
+			"img": "yyzz",
+			"code": "123"
+		}
+	]
