@@ -8,9 +8,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace AtlasGM
+namespace AtlasGM.Controls
 {
-    
+    /// <summary>
+    /// 给玩家增加经验
+    /// </summary>
     public partial class GiveExpToPlayerControl : UserControl
     {
         public event DelegateSendClick SendClick;
@@ -22,10 +24,8 @@ namespace AtlasGM
         private void GiveExpToPlayer_Click(object sender, EventArgs e)
         {
 
-            ((Button) sender).Tag = new {UserID = UserId.Text, Exp = Exp.Text};
-            SendClick(sender,e);
-            //this.Parent.Hide();
-            //this.Parent.Dispose();
+            ((Button)sender).Tag = new { UserID = UserId.Text, Exp = Exp.Text };
+            SendClick(sender, e);
         }
     }
 }

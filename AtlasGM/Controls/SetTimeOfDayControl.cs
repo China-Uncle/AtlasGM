@@ -11,18 +11,20 @@ using System.Windows.Forms;
 namespace AtlasGM.Controls
 {
     /// <summary>
-    /// 给自己增加经验
+    /// 设置时间
     /// </summary>
-    public partial class ExperienceControl :UserControl
+    public partial class SetTimeOfDayControl : UserControl
     {
         public event DelegateSendClick SendClick;
-        public ExperienceControl()
+        public SetTimeOfDayControl()
         {
             InitializeComponent();
-        } 
-        private void AddExperience_Click(object sender, EventArgs e)
+        }
+
+        private void SetTimeOfDay_Click(object sender, EventArgs e)
         {
-            ((Button)sender).Tag = new { IsOnly = IsOnly.Checked, Exp = Exp.Text };
+            ((Button)sender).Tag = TextValue.Text;
+           
             SendClick(sender, e);
         }
     }

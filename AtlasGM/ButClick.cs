@@ -71,19 +71,7 @@ namespace AtlasGM
                         return;
                     }
                     SendMessageHelper.Send("enablecheats " + gmpwd);
-                    break;
-                case "SendItem":
-                    var select = ((ListView)ItemForm.ActiveForm.Controls.Find("ItemlistView", true).First()).SelectedItems;
-                    if (select.Count > 0)
-                    {
-                        //select[0].Tag;
-                    }
-                    /*判断是否选中了物品
-                     * 判断文本框参数是否齐全
-                     */
-
-                    //SendMessageHelper.Send("showmyadminmanager");
-                    break;
+                    break; 
             }
         }
 

@@ -11,19 +11,27 @@ using System.Windows.Forms;
 namespace AtlasGM.Controls
 {
     /// <summary>
-    /// 给自己增加经验
+    /// 传送
     /// </summary>
-    public partial class ExperienceControl :UserControl
+    public partial class TeleportControl : UserControl
     {
         public event DelegateSendClick SendClick;
-        public ExperienceControl()
+        public TeleportControl()
         {
+            
             InitializeComponent();
-        } 
-        private void AddExperience_Click(object sender, EventArgs e)
+           
+        }
+
+        private void TeleportBut_Click(object sender, EventArgs e)
         {
-            ((Button)sender).Tag = new { IsOnly = IsOnly.Checked, Exp = Exp.Text };
+            ((Button)sender).Tag = TextValue.Text;
+            if (this.Parent.Text == "将玩家传送到身边")
+            {
+                ((Button)sender).Name = "TeleportPlayerIDToMe";
+            }  
             SendClick(sender, e);
+
         }
     }
 }

@@ -20,12 +20,12 @@ namespace AtlasGM
         public Form1()
         {
             InitializeComponent();
-            ShowGiveExpToPlayer.Tag = new { Contorl = "123", Title = "给玩家增加经验" };
-            ShowTeleportPlayerIDToMe.Tag = new { Contorl = "123", Title = "将玩家传送到身边" };
-            ShowTeleportToPlayer.Tag = new { Contorl = "123", Title = "传送到玩家身边" };
-            ShowSetTimeOfDay.Tag = new { Contorl = "123", Title = "设置时间" };
+            ShowGiveExpToPlayer.Tag = new { Contorl = "GiveExpToPlayerControl", Title = "给玩家增加经验" };
+            ShowTeleportPlayerIDToMe.Tag = new { Contorl = "TeleportControl", Title = "将玩家传送到身边" };
+            ShowTeleportToPlayer.Tag = new { Contorl = "TeleportControl", Title = "传送到玩家身边" };
+            ShowSetTimeOfDay.Tag = new { Contorl = "SetTimeOfDayControl", Title = "设置时间" };
             ShowBroadcast.Tag = new { Contorl = "123", Title = "发送广播" };
-            ShowBroadcast.Tag = new { Contorl = "123", Title = "发送广播"  };
+            ShowAddExperience.Tag = new { Contorl = "ExperienceControl", Title = "给自己增加经验"  };
             BindItem();
         }
         private void BindItem()
@@ -48,26 +48,7 @@ namespace AtlasGM
             }
             SendMessageHelper.Send("enablecheats " + GMpass.Text);
             // SendMessage(Program.handle, 0X49, 0X49, 0); //输入TAB（0x09）
-        }
-
-        private void ShowItemForm_Click(object sender, EventArgs e)
-        {
-            bool isfind = false;
-            foreach (Form fm in Application.OpenForms)
-            {
-                //判断Form2是否存在，如果在激活并给予焦点
-                if (fm.Name == "ItemForm")
-                {
-                    fm.WindowState = FormWindowState.Maximized;
-                    fm.WindowState = FormWindowState.Normal;
-                    fm.Activate();
-                    return;
-                }
-            }
-            //如果窗口不存在，打开窗口
-            Form itemForm = new ItemForm(); itemForm.Show();
-
-        }
+        } 
         /// <summary>
         /// 重写windows消息响应
         /// </summary>
@@ -316,13 +297,12 @@ namespace AtlasGM
         {
             SpringWindow springWindow = new SpringWindow();
             springWindow.StartPosition = FormStartPosition.CenterParent;
-            
-            springWindow.Text = "asdfasdf";
+            dynamic Tag= ((Button)sender).Tag;
+            springWindow.Text = Tag.Title.ToString();
           //  GiveExpToPlayerControl control = new GiveExpToPlayerControl();
           //  control.SendClick += new DelegateSendClick(Send_Click);
-            //springWindow.Controls.Add(control);
-            Type classType = Type.GetType("AtlasGM.GiveExpToPlayerControl, AtlasGM");
-            dynamic instance = Activator.CreateInstance(classType);
+            //springWindow.Controls.Add(control); 
+            dynamic instance = Activator.CreateInstance(Type.GetType("AtlasGM.Controls." + Tag.Contorl.ToString() + ", AtlasGM"));
             instance.SendClick += new DelegateSendClick(Send_Click);
             springWindow.Size = new Size( instance.Width+10, instance.Height+ SystemInformation.CaptionHeight+10);
             springWindow.Controls.Add(instance);
