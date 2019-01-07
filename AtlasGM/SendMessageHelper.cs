@@ -295,20 +295,7 @@ namespace AtlasGM
         [DllImport("user32.dll")]
         public static extern void SwitchToThisWindow(IntPtr hWnd, bool fAltTab);
         [DllImport("user32.dll")] private static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
-        [DllImport("user32.dll")] private static extern int PostMessage(IntPtr hWnd, int Msg, int wParam, uint lParam);
-        [DllImport("user32.dll")] private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndlnsertAfter, int X, int Y, int cx, int cy, uint Flags);
-        private const int WM_CHAR = 0X102;
         [DllImport("user32.dll")] private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
- 
- 
-
-      
-
-    
-
-
-
- 
         /// <summary>
         /// 获取指定窗口的设备场景
         /// </summary>
@@ -357,7 +344,6 @@ namespace AtlasGM
        static int Retry = 0;
         public static void Send(string message, int number = 1)
         {
-
             try
             {
                 ShowWindow(Program.handle, 9); //将窗口还原
@@ -455,18 +441,6 @@ namespace AtlasGM
             SendMessage(Program.handle, WindowsMessage.WM_SYSKEYDOWN, (int)Keys.Escape, 0);
             SendMessage(Program.handle, WindowsMessage.WM_SYSKEYUP, (int)Keys.Escape, 0);
             Thread.Sleep(300);
-        }
-
-
-
-
-        public static void InputStr(IntPtr myIntPtr, string Input)
-        {
-            byte[] ch = (ASCIIEncoding.ASCII.GetBytes(Input));
-            for (int i = 0; i < ch.Length; i++)
-            {
-                SendMessage(Program.handle, WM_CHAR, ch[i], 0);
-            }
-        }
+        } 
     }
 }
